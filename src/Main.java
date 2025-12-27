@@ -59,13 +59,13 @@ public class Main {
 
             while (true) {
                 long start = System.nanoTime();
-                float time = (System.currentTimeMillis() % 10000) / 1000f;
+                float time = (System.currentTimeMillis() % 1000000) / 1000f;
 
                 // ----- DRAW -----
                 Graphics2D g = backBuffer.createGraphics();
                 Renderer r = new Renderer(backBuffer, g, W, H);
 
-                r.clear(Color.BLACK);
+                r.clear(Color.darkGray);
 
                 // r.drawPoint(r.screen(r.project(new Vector3(0.5f, 0, z) )));
                 // r.drawLine(
@@ -77,9 +77,9 @@ public class Main {
 
 
                 for (Face face : suzanne.faces) {
-                    Vector3 v1 = suzanne.vertices.get(face.a).rotateY(time).rotateX(time);
-                    Vector3 v2 = suzanne.vertices.get(face.b).rotateY(time).rotateX(time);
-                    Vector3 v3 = suzanne.vertices.get(face.c).rotateY(time).rotateX(time);
+                    Vector3 v1 = suzanne.vertices.get(face.a).rotateY(time).rotateX(time / 1.5f);
+                    Vector3 v2 = suzanne.vertices.get(face.b).rotateY(time).rotateX(time / 1.5f);
+                    Vector3 v3 = suzanne.vertices.get(face.c).rotateY(time).rotateX(time / 1.5f);
     
                     // 0 1 2
                     r.drawTriangle(r.screen(r.project(v1)), r.screen(r.project(v2)), r.screen(r.project(v3)));
