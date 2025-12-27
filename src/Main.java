@@ -28,9 +28,26 @@ public class Main {
                 if (line.startsWith("f ")) {
                     String[] parts = line.split(" ");
                     model.faces.add(new Face(
+                        // f v/vt/vn
+
+                        // vertex indices
                         Integer.parseInt(parts[1].split("/")[0]) - 1,
                         Integer.parseInt(parts[2].split("/")[0]) - 1,
-                        Integer.parseInt(parts[3].split("/")[0]) - 1
+                        Integer.parseInt(parts[3].split("/")[0]) - 1,
+
+                        // normal indices 
+                        Integer.parseInt(parts[1].split("/")[2]) - 1,
+                        Integer.parseInt(parts[2].split("/")[2]) - 1,
+                        Integer.parseInt(parts[3].split("/")[2]) - 1
+                    ));
+                }
+
+                if (line.startsWith("vn ")) {
+                    String[] parts = line.split(" ");
+                    model.normals.add(new Vector3(
+                        Float.parseFloat(parts[1]),
+                        Float.parseFloat(parts[2]),
+                        Float.parseFloat(parts[3])
                     ));
                 }
             }
@@ -80,12 +97,18 @@ public class Main {
                     Vector3 v1 = suzanne.vertices.get(face.a).rotateY(time).rotateX(time / 1.5f);
                     Vector3 v2 = suzanne.vertices.get(face.b).rotateY(time).rotateX(time / 1.5f);
                     Vector3 v3 = suzanne.vertices.get(face.c).rotateY(time).rotateX(time / 1.5f);
+
+                    Vector3 n1 = suzanne.normals.get(face.na).rotateY(time).rotateX(time / 1.5f);
+                    Vector3 n2 = suzanne.normals.get(face.nb).rotateY(time).rotateX(time / 1.5f);
+                    Vector3 n3 = suzanne.normals.get(face.nc).rotateY(time).rotateX(time / 1.5f);
     
                     // 0 1 2
-                    Vector3 normal = Renderer.faceNormal(v1, v2, v3);
+                    // Vector3 normal = Renderer.faceNormal(v1, v2, v3);
                     Vector3 sunDir = new Vector3(0, 1, -1).normalize();
-                    float brightness = Math.max(0, normal.dot(sunDir));
-                    r.drawTriangle(r.screen(r.project(v1)), r.screen(r.project(v2)), r.screen(r.project(v3)), brightness);
+                    r.drawTriangle(r.screen(r.project(v1)), r.screen(r.project(v2)), r.screen(r.project(v3)),
+                                   n1, n2, n3,
+                                   sunDir
+                                );
                     // r.drawLine(r.screen(r.project(v1)), r.screen(r.project(v2)));
                     // r.drawLine(r.screen(r.project(v2)), r.screen(r.project(v3)));
                     // r.drawLine(r.screen(r.project(v3)), r.screen(r.project(v1)));

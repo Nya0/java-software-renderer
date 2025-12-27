@@ -66,17 +66,23 @@ class Vector3 {
 }
 
 class Face { // triangulated faces
-    public int a, b, c;
+    public int a, b, c; // vertex indices
+    public int na, nb, nc; // normal indices
 
-    Face(int a, int b, int c) {
+    Face(int a, int b, int c, int na, int nb, int nc) {
         this.a = a;
         this.b = b;
         this.c = c;
+
+        this.na = na;
+        this.nb = nb;
+        this.nc = nc;
     }
 }
 
 class Model {
     List<Vector3> vertices = new ArrayList<>();
+    List<Vector3> normals = new ArrayList<>();
     List<Face> faces = new ArrayList<>();
 }
 
@@ -127,7 +133,10 @@ class Renderer {
         }
     }
 
-    void drawTriangle(Vector3 a, Vector3 b, Vector3 c, float brightness) {
+    void drawTriangle(Vector3 a, Vector3 b, Vector3 c, 
+                      Vector3 na, Vector3 nb, Vector3 nc,
+                      Vector3 sunDir) {
+        
         double ABC = edgeFunction(a, b, c);
 
         if (ABC < 0) {
@@ -155,9 +164,18 @@ class Renderer {
                     // int r = (int)((colA.getRed() * normA + colB.getRed() * normB + colC.getRed() * normC) * brightness);
                     // int g = (int)((colA.getGreen() * normA + colB.getGreen() * normB + colC.getGreen() * normC) * brightness);
                     // int blu = (int)((colA.getBlue() * normA + colB.getBlue() * normB + colC.getBlue() * normC) * brightness);
+                    
+                    float nx = (float)(na.x * normA + nb.x * normB + nc.x * normC);
+                    float ny = (float)(na.y * normA + nb.y * normB + nc.y * normC);
+                    float nz = (float)(na.z * normA + nb.z * normB + nc.z * normC);
+                    Vector3 normal = new Vector3(nx, ny, nz).normalize();
+
+                    float brightness = Math.max(0, normal.dot(sunDir));
+
                     int r = (int)(255f * brightness);
                     int g = (int)(255f * brightness);
                     int blu = (int)(255f * brightness);
+
 
                     float z = (float)(a.z * normA + b.z * normB + c.z * normC);
                     int idx = (int)(y * width + x);
