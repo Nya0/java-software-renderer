@@ -7,8 +7,8 @@ import java.io.FileReader;
 import javax.swing.JFrame;
 
 public class Main {
-    static final int W = 1440;
-    static final int H = 720;
+    static final int W = 500;
+    static final int H = 500;
     
 
     static Model loadObjModel(String filePath) {
@@ -42,7 +42,7 @@ public class Main {
         return model;
     }
     public static void main(String[] args) {
-        Model suzanne = loadObjModel("C:\\Users\\alert\\Misc\\University\\T5\\Advanced Programming\\Practice\\FinalRev\\suzanne.obj");
+        Model suzanne = loadObjModel("C:\\Users\\alert\\Misc\\University\\T5\\Advanced Programming\\Practice\\FinalRev\\V3.obj");
 
         DrawPanel panel = new DrawPanel();
 
@@ -82,7 +82,10 @@ public class Main {
                     Vector3 v3 = suzanne.vertices.get(face.c).rotateY(time).rotateX(time / 1.5f);
     
                     // 0 1 2
-                    r.drawTriangle(r.screen(r.project(v1)), r.screen(r.project(v2)), r.screen(r.project(v3)));
+                    Vector3 normal = Renderer.faceNormal(v1, v2, v3);
+                    Vector3 sunDir = new Vector3(0, 1, -1).normalize();
+                    float brightness = Math.max(0, normal.dot(sunDir));
+                    r.drawTriangle(r.screen(r.project(v1)), r.screen(r.project(v2)), r.screen(r.project(v3)), brightness);
                     // r.drawLine(r.screen(r.project(v1)), r.screen(r.project(v2)));
                     // r.drawLine(r.screen(r.project(v2)), r.screen(r.project(v3)));
                     // r.drawLine(r.screen(r.project(v3)), r.screen(r.project(v1)));
