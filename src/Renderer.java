@@ -27,6 +27,10 @@ class Vector3 {
         return new Vector3(x - o.x, y - o.y, z - o.z);
     }
 
+    Vector3 add(Vector3 o) {
+        return new Vector3(x + o.x, y + o.y, z + o.z);
+    }
+
     Vector3 cross(Vector3 o) {
         return new Vector3(
             y * o.z - z * o.y,
@@ -105,6 +109,7 @@ class Renderer {
     }
 
     static double edgeFunction(Vector3 a, Vector3 b, int px, int py) {
+
         return (b.x - a.x) * (py - a.y) - (b.y - a.y) * (px - a.x);
     }
 
@@ -120,8 +125,8 @@ class Renderer {
 
     void clear(Color c) {
         depthBuffer = new float[width * height];
-        Arrays.fill(depthBuffer, Float.MAX_VALUE)
-        ;
+        Arrays.fill(depthBuffer, Float.MAX_VALUE);
+        
         g.setColor(c);
         g.fillRect(0, 0, width, height);
     }
@@ -171,14 +176,19 @@ class Renderer {
                     
                     float z = (float)(a.z * normA + b.z * normB + c.z * normC);
                     
-                    float brightness = Math.max(0, normal.dot(sunDir));
-                    float fog = Math.min(1, z / 15f); 
-                    brightness *= (1 - fog);
+                    float diffuse = Math.max(0, normal.dot(sunDir));
 
-                    int r = (int)(255f * brightness);
-                    int g = (int)(255f * brightness);
-                    int blu = (int)(255f * brightness);
+                    Vector3 viewDir = new Vector3(0, 0, -1);
+                    Vector3 halfway = sunDir.add(viewDir).normalize();
+                    float spec = (float) Math.pow(Math.max(0, normal.dot(halfway)), Main.shininess);
+  
+                    int baseR = Main.modelColor.getRed();
+                    int baseG = Main.modelColor.getGreen();
+                    int baseB = Main.modelColor.getBlue();
 
+                    int r = Math.min(255, (int)(baseR * diffuse + 255 * spec * Main.specularStrength));
+                    int g = Math.min(255, (int)(baseG * diffuse + 255 * spec * Main.specularStrength));
+                    int blu = Math.min(255, (int)(baseB * diffuse + 255 * spec * Main.specularStrength));
 
                     int idx = (int)(y * width + x);
 
@@ -192,57 +202,57 @@ class Renderer {
         }
     }
 
-    void drawTriangle(Vector3 a, Vector3 b, Vector3 c) {
+    // void drawTriangle(Vector3 a, Vector3 b, Vector3 c) {
         
-        double ABC = edgeFunction(a, b, c);
+    //     double ABC = edgeFunction(a, b, c);
 
-        if (ABC < 0) {
-            return;
-        }
+    //     if (ABC < 0) {
+    //         return;
+    //     }
 
-        int minX = (int) Math.max(0, Math.min(a.x, Math.min(b.x, c.x)));
-        int maxX = (int) Math.min(width - 1, Math.max(a.x, Math.max(b.x, c.x)));
-        int minY = (int) Math.max(0, Math.min(a.y, Math.min(b.y, c.y)));
-        int maxY = (int) Math.min(height - 1, Math.max(a.y, Math.max(b.y, c.y)));
+    //     int minX = (int) Math.max(0, Math.min(a.x, Math.min(b.x, c.x)));
+    //     int maxX = (int) Math.min(width - 1, Math.max(a.x, Math.max(b.x, c.x)));
+    //     int minY = (int) Math.max(0, Math.min(a.y, Math.min(b.y, c.y)));
+    //     int maxY = (int) Math.min(height - 1, Math.max(a.y, Math.max(b.y, c.y)));
 
-        for (int y = minY; y <= maxY; y++) {
-            for (int x = minX; x <= maxX; x++) {
-                double ABP = edgeFunction(a, b, x, y);
-                double BCP = edgeFunction(b, c, x, y);
-                double CAP = edgeFunction(c, a, x, y);
+    //     for (int y = minY; y <= maxY; y++) {
+    //         for (int x = minX; x <= maxX; x++) {
+    //             double ABP = edgeFunction(a, b, x, y);
+    //             double BCP = edgeFunction(b, c, x, y);
+    //             double CAP = edgeFunction(c, a, x, y);
 
-                boolean inside = (ABP >= 0 && BCP >= 0);
+    //             boolean inside = (ABP >= 0 && BCP >= 0 && CAP >= 0);
 
-                if (inside) {
-                    double normA = BCP / ABC;
-                    double normB = CAP / ABC;
-                    double normC = ABP / ABC;
+    //             if (inside) {
+    //                 double normA = BCP / ABC;
+    //                 double normB = CAP / ABC;
+    //                 double normC = ABP / ABC;
                     
                     
-                    float z = (float)(a.z * normA + b.z * normB + c.z * normC);
+    //                 float z = (float)(a.z * normA + b.z * normB + c.z * normC);
                     
-                    float brightness = Math.max(0, 1f);
+    //                 float brightness = Math.max(0, 1f);
                     
-                    // int r = (int)((colA.getRed() * normA + colB.getRed() * normB + colC.getRed() * normC) * brightness);
-                    // int g = (int)((colA.getGreen() * normA + colB.getGreen() * normB + colC.getGreen() * normC) * brightness);
-                    // int blu = (int)((colA.getBlue() * normA + colB.getBlue() * normB + colC.getBlue() * normC) * brightness);
+    //                 // int r = (int)((colA.getRed() * normA + colB.getRed() * normB + colC.getRed() * normC) * brightness);
+    //                 // int g = (int)((colA.getGreen() * normA + colB.getGreen() * normB + colC.getGreen() * normC) * brightness);
+    //                 // int blu = (int)((colA.getBlue() * normA + colB.getBlue() * normB + colC.getBlue() * normC) * brightness);
 
-                    int r = (int)(255f * brightness);
-                    int g = (int)(255f * brightness);
-                    int blu = (int)(255f * brightness);
+    //                 int r = (int)(255f * brightness);
+    //                 int g = (int)(255f * brightness);
+    //                 int blu = (int)(255f * brightness);
 
 
-                    int idx = (int)(y * width + x);
+    //                 int idx = (int)(y * width + x);
 
-                    if (z < depthBuffer[idx]) {
-                        depthBuffer[idx] = z;
-                        setPixel(x, y, new Color(r, g, blu));
-                    }
+    //                 if (z < depthBuffer[idx]) {
+    //                     depthBuffer[idx] = z;
+    //                     setPixel(x, y, new Color(r, g, blu));
+    //                 }
                     
-                }
-            }
-        }
-    }
+    //             }
+    //         }
+    //     }
+    // }
 
     void drawPoint(Vector2 pos) {
         g.setColor(Color.magenta);
@@ -263,7 +273,7 @@ class Renderer {
     }
 
     Vector3 project(Vector3 v, float zoom) {
-        float fov = 105f;
+        float fov = 45;
         float fovFactor = (float) (1 / Math.tan(Math.toRadians(fov / 2)));
         float aspect = (float) width / height;
 
